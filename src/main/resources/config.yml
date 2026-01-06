@@ -1,0 +1,21 @@
+discordWebhookNotifyUrl: https://discord.com/api/webhooks/123/foobar
+database:
+  host: localhost
+  port: 3306
+  scheme: goldencloth
+  username: root
+  password: ""
+  useSSL: false
+categories:
+  - name: "Life Items"
+    material: paper
+    products:
+      - basePrice: 500
+        material: paper
+        name: "&afoobar"
+        lore:
+          - "&fline 1"
+          - "line 2"
+        commands:
+          - "give <player> diamond"
+        randomness: 0.0

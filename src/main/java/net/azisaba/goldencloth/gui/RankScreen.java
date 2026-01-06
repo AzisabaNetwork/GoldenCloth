@@ -1,0 +1,328 @@
+package net.azisaba.goldencloth.gui;
+
+import net.azisaba.azipluginmessaging.api.AziPluginMessagingProvider;
+import net.azisaba.azipluginmessaging.api.protocol.Protocol;
+import net.azisaba.azipluginmessaging.api.protocol.message.PlayerMessage;
+import net.azisaba.azipluginmessaging.api.protocol.message.ProxyboundGiveNitroSaraMessage;
+import net.azisaba.azipluginmessaging.api.protocol.message.ProxyboundGiveSaraMessage;
+import net.azisaba.goldencloth.GoldenClothPlugin;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
+public final class RankScreen extends ShopScreen {
+    private static final Map<@Nullable String, List<String>> benefits = new HashMap<>();
+    private static final Map<@NotNull Integer, SlotData> slots = new HashMap<>();
+
+    static {
+        benefits.put("100yen", Arrays.asList(
+                "§7アジ鯖に100円寄付したものに送られる称号。",
+                "",
+                "§6§n全鯖共通",
+                "§f- §e名前の最初に§8[§1100円皿§8]§eがつき、名前も同じ色になる",
+                "",
+                "§6§nLGW",
+                "§f- §1100円HANABI§eがもらえる",
+                "§f- §d寄付ガチャチケット§eが1枚もらえる",
+                "§f- §b/h§eコマンドで100円皿専用のパーティクルがアクセス可能になる"
+        ));
+        benefits.put("500yen", Arrays.asList(
+                "§7アジ鯖に500円寄付したものに送られる称号。",
+                "",
+                "§6§n全鯖共通",
+                "§f- §e名前の最初に§8[§b500円皿§8]§eがつき、名前も同じ色になる",
+                "",
+                "§6§nLGW",
+                "§f- §b500円HANABI§eがもらえる",
+                "§f- §d寄付ガチャチケット§eが3枚もらえる",
+                "§f- §b/h§eコマンドで500円皿専用のパーティクルがアクセス可能になる"
+        ));
+        benefits.put("1000yen", Arrays.asList(
+                "§7アジ鯖に1000円寄付したものに送られる称号。",
+                "",
+                "§6§n全鯖共通",
+                "§f- §e名前の最初に§8[§a1000円皿§8]§eがつき、名前も同じ色になる",
+                "",
+                "§6§nLGW",
+                "§f- §a1000円HANABI§eがもらえる",
+                "§f- §d寄付ガチャチケット§eが5枚もらえる",
+                "§f- §b/h§eコマンドで1000円皿専用のパーティクルがアクセス可能になる",
+                "§f- §b/hat§eコマンドが使用可能になる(アイテムを頭にかぶることができる)"
+        ));
+        benefits.put("2000yen", Arrays.asList(
+                "§7アジ鯖に2000円寄付したものに送られる称号。",
+                "",
+                "§6§n全鯖共通",
+                "§f- §e名前の最初に§8[§d2000円皿§8]§eがつき、名前も同じ色になる",
+                "",
+                "§6§nLGW",
+                "§f- §d2000円HANABI§eがもらえる",
+                "§f- §d寄付ガチャチケット§eが10枚もらえる",
+                "§f- §b/h§eコマンドで2000円皿専用のパーティクルがアクセス可能になる",
+                "§f- §b/hat§eコマンドが使用可能になる(アイテムを頭にかぶることができる)"
+        ));
+        benefits.put("5000yen", Arrays.asList(
+                "§7アジ鯖に5000円寄付したものに送られる称号。",
+                "",
+                "§6§n全鯖共通",
+                "§f- §e名前の最初に§8[§55000円皿§8]§eがつき、名前も同じ色になる",
+                "§f- §eチャットでカラーコードと装飾コードが使えるようになる",
+                "",
+                "§6§nLGW",
+                "§f- §55000円HANABI§eがもらえる",
+                "§f- §d寄付ガチャチケット§eが20枚もらえる",
+                "§f- §b/h§eコマンドで5000円皿専用のパーティクルがアクセス可能になる",
+                "§f- §b/hat§eコマンドが使用可能になる(アイテムを頭にかぶることができる)",
+                "§f- §6DOROKUN§eがもらえる"
+        ));
+        benefits.put("10000yen", Arrays.asList(
+                "§7アジ鯖に10000円寄付したものに送られる称号。",
+                "",
+                "§6§n全鯖共通",
+                "§f- §e名前の最初に§8[§610000円皿§8]§eがつき、名前も同じ色になる",
+                "§f- §eチャットでカラーコードと装飾コードが使えるようになる",
+                "",
+                "§6§nLGW",
+                "§f- §610000円HANABI§eがもらえる",
+                "§f- §d寄付ガチャチケット§eが32枚もらえる",
+                "§f- §b/h§eコマンドで5000円皿専用のパーティクルがアクセス可能になる",
+                "§f- §b/hat§eコマンドが使用可能になる(アイテムを頭にかぶることができる)",
+                "§f- §6カボチャ爆弾§eがもらえる"
+        ));
+        benefits.put("50000yen", Arrays.asList(
+                "§7アジ鯖に50000円寄付したものに送られる称号。",
+                "",
+                "§6§n全鯖共通",
+                "§f- §e名前の最初に§8[§25§a0§20§a0§20§a円§2皿§8]§eがつき、名前が§2緑色§eになる",
+                "§f- §eチャットでカラーコードと装飾コードが使えるようになる",
+                "",
+                "§6§nLGW",
+                "§f- §d寄付ガチャチケット§eが128枚もらえる",
+                "§f- §b/h§eコマンドで50000円皿専用のパーティクルがアクセス可能になる",
+                "§f- §b/hat§eコマンドが使用可能になる(アイテムを頭にかぶることができる)"
+        ));
+        benefits.put("changegamingsara", Arrays.asList(
+                "§7アジ鯖に人生を捧げるゲーマーに送られる称号。",
+                "",
+                "§6§n全鯖共通",
+                "§f- §e名前の最初に§8[§9§lゲ§2§lー§a§lミ§e§lン§4§lグ§8]§eがつき、名前が§b水色§eになる",
+                "§f- §eチャットでカラーコードと装飾コードが使えるようになる",
+                "§f- §b/gamingsara§eでゲーミングランクの表示",
+                "",
+                "§6§nLife",
+                "§f- §eニックネームでカラーコードと日本語が使用可能になる"
+        ));
+        benefits.put(null, Arrays.asList(
+                "§7アジ鯖に毎月寄付している者に送られる称号。",
+                "",
+                "§6§n全鯖共通",
+                "§f- §e名前の最初に§8[§3Nitro§6§l⚡§8]§eがつき、名前も同じ色になる",
+                "§f- §eチャットでカラーコードと装飾コードが使えるようになる",
+                "§f- §b/togglenitro§eでランクの表示/非表示の切り替え",
+                "§f- §eほぼすべてのサーバーで名前の最初に着くPrefixを自由に変更できるようになる",
+                " §f §b/setprefix (新しいprefix)§eで設定、§b/clearprefix§eで削除 (globalよりもこちらが優先)",
+                " §f §b/setglobalprefix (新しいprefix)§eで設定、§b/clearglobalprefix§eで削除",
+                "§f- §eギルドチャットの公開設定",
+                " §f §b/guild_test open§eで§b/guild_test join (ギルド名)§eで招待無しで参加可能になる",
+                "§f- §bbeta.azisaba.net§eの接続権",
+                " §f §e今後ベータ版のサーバーが先行公開する際に参加可能になります。",
+                "",
+                "§6§nロビー",
+                "§f- §eロビーサーバーで飛行できるようになる",
+                "§f- §eロビーのログインメッセージ変更(固定)",
+                "",
+                "§6§nLife",
+                "§f- §eニックネームでカラーコードと日本語が使用可能になる",
+                "",
+                "§d※継続課金ではなく、30日が追加される形となります。"
+        ));
+
+        slots.put(28, new SlotData(Material.DIAMOND, 100, "§1100円皿", "100yen", p -> {
+            net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
+            if (!Protocol.P_GIVE_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new ProxyboundGiveSaraMessage(100, player))) {
+                throw new RuntimeException("Failed to send packet");
+            }
+        }));
+        slots.put(29, new SlotData(Material.DIAMOND, 500, "§b500円皿", "500yen", p -> {
+            net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
+            if (!Protocol.P_GIVE_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new ProxyboundGiveSaraMessage(500, player))) {
+                throw new RuntimeException("Failed to send packet");
+            }
+        }));
+        slots.put(30, new SlotData(Material.DIAMOND, 1000, "§a1000円皿", "1000yen", p -> {
+            net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
+            if (!Protocol.P_GIVE_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new ProxyboundGiveSaraMessage(1000, player))) {
+                throw new RuntimeException("Failed to send packet");
+            }
+        }));
+        slots.put(31, new SlotData(Material.DIAMOND, 2000, "§d2000円皿", "2000yen", p -> {
+            net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
+            if (!Protocol.P_GIVE_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new ProxyboundGiveSaraMessage(2000, player))) {
+                throw new RuntimeException("Failed to send packet");
+            }
+        }));
+        slots.put(32, new SlotData(Material.DIAMOND, 5000, "§55000円皿", "5000yen", p -> {
+            net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
+            if (!Protocol.P_GIVE_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new ProxyboundGiveSaraMessage(5000, player))) {
+                throw new RuntimeException("Failed to send packet");
+            }
+        }));
+        slots.put(33, new SlotData(Material.DIAMOND, 10000, "§610000円皿", "10000yen", p -> {
+            net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
+            if (!Protocol.P_GIVE_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new ProxyboundGiveSaraMessage(10000, player))) {
+                throw new RuntimeException("Failed to send packet");
+            }
+        }));
+        slots.put(34, new SlotData(Material.DIAMOND, 50000, "§25§a0§20§a0§20§a円§2皿", "50000yen", p -> {
+            net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
+            if (!Protocol.P_GIVE_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new ProxyboundGiveSaraMessage(50000, player))) {
+                throw new RuntimeException("Failed to send packet");
+            }
+        }));
+        slots.put(38, new SlotData(Material.DIAMOND, 3000, "§9§lゲ§2§lー§a§lミ§e§lン§4§lグ§eランク", "changegamingsara", p -> {
+            net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
+            if (!Protocol.P_GIVE_GAMING_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new PlayerMessage(player))) {
+                throw new RuntimeException("Failed to send packet");
+            }
+        }));
+        slots.put(42, new SlotData(Material.DIAMOND, 500, "§3Nitro§6§l⚡ §e(30日間)", null, p -> {
+            net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
+            if (!Protocol.P_GIVE_NITRO_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new ProxyboundGiveNitroSaraMessage(player, 30, TimeUnit.DAYS))) {
+                throw new RuntimeException("Failed to send packet");
+            }
+        }));
+    }
+
+    public RankScreen(@NotNull GoldenClothPlugin plugin, @NotNull Player player) {
+        super(plugin, ShopType.Rank, "ランク");
+        slots.forEach((slot, data) -> {
+            List<String> benefit = benefits.getOrDefault(data.groupName, Collections.emptyList());
+            int actualPrice = data.type == Material.DIAMOND ? data.price - getSaraPriceReduction(player) : data.price;
+            String lorePrice;
+            if (data.groupName != null && player.hasPermission("group." + data.groupName)) {
+                lorePrice = "§c購入済み";
+            } else if (data.price == actualPrice) {
+                lorePrice = "§6価格: §a" + actualPrice + "円";
+            } else if (actualPrice <= 0) {
+                lorePrice = "§c購入済み";
+            } else {
+                lorePrice = "§6価格: §8§m" + data.price + "円§a " + actualPrice + "円";
+            }
+            ItemStack stack = new ItemStack(data.type);
+            ItemMeta meta = stack.getItemMeta();
+            meta.setDisplayName(data.name);
+            List<String> lore = new ArrayList<>(benefit);
+            lore.add("");
+            lore.add(lorePrice);
+            meta.setLore(lore);
+            stack.setItemMeta(meta);
+            inventory.setItem(slot, stack);
+        });
+    }
+    
+    public static class EventListener implements Listener {
+        private final GoldenClothPlugin plugin;
+        
+        public EventListener(GoldenClothPlugin plugin) {
+            this.plugin = plugin;
+        }
+        
+        @EventHandler
+        public void onInventoryDrag(InventoryDragEvent e) {
+            if (e.getInventory().getHolder() instanceof RankScreen) {
+                e.setCancelled(true);
+            }
+        }
+        
+        @EventHandler
+        public void onInventoryClick(InventoryClickEvent e) {
+            if (!(e.getInventory().getHolder() instanceof RankScreen)) {
+                return;
+            }
+            e.setCancelled(true);
+            if (e.getClickedInventory() == null || !(e.getClickedInventory().getHolder() instanceof RankScreen)) {
+                return;
+            }
+            RankScreen screen = (RankScreen) e.getClickedInventory().getHolder();
+            if (screen.handle(e)) return;
+            SlotData data = slots.get(e.getSlot());
+            if (data == null) return;
+            int actualPrice = data.getActualPrice((Player) e.getWhoClicked());
+            if (actualPrice > data.price) throw new IllegalArgumentException("actualPrice must be less than or equal to price (" + actualPrice + " > " + data.price + ")");
+            if (actualPrice <= 0 || (data.groupName != null && e.getWhoClicked().hasPermission("group." + data.groupName))) {
+                e.getWhoClicked().sendMessage(ChatColor.RED + "この商品はすでに購入済みです！");
+                return;
+            }
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                try {
+                    // TODO: fill the ???
+                    if (plugin.getDatabaseManager().getRepository().spend(/* ??? */)) {
+                        data.action.accept((Player) e.getWhoClicked());
+                    }
+                } catch (SQLException ex) {
+                    e.getWhoClicked().sendMessage(ChatColor.RED + "購入処理中にエラーが発生しました。");
+                    ex.printStackTrace();
+                }
+            });
+        }
+    }
+
+    public static int getSaraPriceReduction(@NotNull Player player) {
+        if (player.hasPermission("group.100000yen")) {
+            return 100000;
+        } else if (player.hasPermission("group.50000yen")) {
+            return 50000;
+        } else if (player.hasPermission("group.10000yen")) {
+            return 10000;
+        } else if (player.hasPermission("group.5000yen")) {
+            return 5000;
+        } else if (player.hasPermission("group.2000yen")) {
+            return 2000;
+        } else if (player.hasPermission("group.1000yen")) {
+            return 1000;
+        } else if (player.hasPermission("group.500yen")) {
+            return 500;
+        } else if (player.hasPermission("group.100yen")) {
+            return 100;
+        }
+        return 0;
+    }
+
+    public static class SlotData {
+        public final @NotNull Material type;
+        public final int price;
+        public final @NotNull String name;
+        public final @Nullable String groupName;
+        public final @NotNull Consumer<Player> action;
+
+        public SlotData(@NotNull Material type, int price, @NotNull String name, @Nullable String groupName, @NotNull Consumer<Player> action) {
+            this.type = type;
+            this.price = price;
+            this.name = name;
+            this.groupName = groupName;
+            this.action = action;
+        }
+
+        public int getActualPrice(@NotNull Player player) {
+            if (type == Material.DIAMOND) {
+                return price - getSaraPriceReduction(player);
+            } else {
+                return price;
+            }
+        }
+    }
+}

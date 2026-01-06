@@ -1,0 +1,12 @@
+name: GoldenCloth
+main: net.azisaba.goldencloth.GoldenClothPlugin
+version: 1.0-SNAPSHOT
+commands:
+  goldencloth:
+    description: GoldenCloth admin commands
+    usage: /goldencloth addPurchase <player> <amount> [note]
+    permission: goldencloth.admin
+permissions:
+  goldencloth.admin:
+    description: Allows managing GoldenCloth purchases
+    default: op
