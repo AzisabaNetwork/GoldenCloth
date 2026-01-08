@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -42,6 +43,12 @@ public class GoldenClothRepository {
         Instant now = Instant.now();
         try (Connection connection = dataSource.getConnection()) {
             return getBalance(connection, playerId, now);
+        }
+    }
+
+    public List<LotBalance> getActiveLots(long playerId, Instant now) throws SQLException {
+        try (Connection connection = dataSource.getConnection()) {
+            return getActiveLots(connection, playerId, now);
         }
     }
 
@@ -292,6 +299,30 @@ public class GoldenClothRepository {
         return null;
     }
 
+    private List<LotBalance> getActiveLots(Connection connection, long playerId, Instant now) throws SQLException {
+        List<LotBalance> lots = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT amount, spent, expires_at FROM golden_cloth_lots "
+                        + "WHERE player_id = ? AND expires_at > ? AND amount > spent "
+                        + "ORDER BY expires_at ASC, id ASC")) {
+            statement.setLong(1, playerId);
+            statement.setTimestamp(2, Timestamp.from(now));
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    int amount = resultSet.getInt("amount");
+                    int spent = resultSet.getInt("spent");
+                    int remaining = amount - spent;
+                    if (remaining <= 0) {
+                        continue;
+                    }
+                    Instant expiresAt = resultSet.getTimestamp("expires_at").toInstant();
+                    lots.add(new LotBalance(remaining, expiresAt));
+                }
+            }
+        }
+        return lots;
+    }
+
     private int getBalance(Connection connection, long playerId, Instant now) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(
                 "SELECT COALESCE(SUM(amount - spent), 0) AS balance "
@@ -402,6 +433,24 @@ public class GoldenClothRepository {
 
         public String getName() {
             return name;
+        }
+    }
+
+    public static class LotBalance {
+        private final int remaining;
+        private final Instant expiresAt;
+
+        public LotBalance(int remaining, Instant expiresAt) {
+            this.remaining = remaining;
+            this.expiresAt = expiresAt;
+        }
+
+        public int getRemaining() {
+            return remaining;
+        }
+
+        public Instant getExpiresAt() {
+            return expiresAt;
         }
     }
 }

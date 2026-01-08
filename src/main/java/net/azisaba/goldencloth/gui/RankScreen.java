@@ -23,13 +23,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public final class RankScreen extends ShopScreen {
     private static final double RANDOMNESS = 0.3;
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     private static final Map<@Nullable String, List<String>> benefits = new HashMap<>();
     private static final Map<@NotNull Integer, SlotData> slots = new HashMap<>();
 
@@ -236,6 +240,59 @@ public final class RankScreen extends ShopScreen {
             meta.setLore(lore);
             stack.setItemMeta(meta);
             inventory.setItem(slot, stack);
+        });
+        ItemStack stack = new ItemStack(Material.REDSTONE_TORCH_ON);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName("§6残高");
+        meta.setLore(Collections.singletonList("§7読み込み中..."));
+        stack.setItemMeta(meta);
+        inventory.setItem(53, stack);
+
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                GoldenClothRepository repository = plugin.getDatabaseManager().getRepository();
+                GoldenClothRepository.PlayerRecord record = repository.findPlayerByUuid(gift.getUniqueId());
+                if (record == null) {
+                    updateBalanceLore(Collections.singletonList("§cプレイヤー情報が見つかりません。"));
+                    return;
+                }
+                List<GoldenClothRepository.LotBalance> lots =
+                        repository.getActiveLots(record.getId(), Instant.now());
+                int total = 0;
+                List<String> lore = new ArrayList<>();
+                for (GoldenClothRepository.LotBalance lot : lots) {
+                    total += lot.getRemaining();
+                }
+                lore.add("§a合計: " + total + "布");
+                if (lots.isEmpty()) {
+                    lore.add("§7残高がありません。");
+                } else {
+                    ZoneId zone = ZoneId.systemDefault();
+                    for (GoldenClothRepository.LotBalance lot : lots) {
+                        String date = DATE_FORMAT.format(lot.getExpiresAt().atZone(zone).toLocalDate());
+                        lore.add("§7- " + lot.getRemaining() + "布 §8(期限: " + date + ")");
+                    }
+                }
+                updateBalanceLore(lore);
+            } catch (SQLException e) {
+                updateBalanceLore(Collections.singletonList("§c残高の取得に失敗しました。"));
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void updateBalanceLore(List<String> lore) {
+        plugin.runSync(() -> {
+            ItemStack item = inventory.getItem(53);
+            if (item == null || item.getType() == Material.AIR) {
+                item = new ItemStack(Material.REDSTONE_TORCH_ON);
+            }
+            ItemMeta meta = item.getItemMeta();
+            meta.setDisplayName("§6残高");
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+            inventory.setItem(53, item);
+            return null;
         });
     }
     

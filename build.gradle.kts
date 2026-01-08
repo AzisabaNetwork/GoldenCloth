@@ -20,11 +20,11 @@ dependencies {
     compileOnly("net.azisaba.azipluginmessaging:api:4.0.4")
     compileOnly("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT")
     compileOnly("org.jetbrains:annotations:26.0.2-1")
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-tasks.test {
-    useJUnitPlatform()
+tasks {
+    shadowJar {
+        enableAutoRelocation.set(true)
+        relocationPrefix.set("net.azisaba.goldencloth.libs")
+    }
 }
