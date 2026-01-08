@@ -6,6 +6,8 @@ commands:
     description: GoldenCloth admin commands
     usage: /goldencloth addPurchase <player> <amount> [note]
     permission: goldencloth.admin
+  cloth:
+    permission: goldencloth.cloth
 permissions:
   goldencloth.admin:
     description: Allows managing GoldenCloth purchases

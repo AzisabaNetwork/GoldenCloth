@@ -6,6 +6,7 @@ import net.azisaba.goldencloth.util.ItemUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -16,10 +17,12 @@ import java.util.Locale;
 
 public class ShopScreen implements InventoryHolder {
     protected final GoldenClothPlugin plugin;
+    protected final Player gift;
     protected final Inventory inventory;
 
-    public ShopScreen(@NotNull GoldenClothPlugin plugin, @NotNull ShopType type, @NotNull String title) {
+    public ShopScreen(@NotNull GoldenClothPlugin plugin, @NotNull Player gift, @NotNull ShopType type, @NotNull String title) {
         this.plugin = plugin;
+        this.gift = gift;
         inventory = Bukkit.createInventory(this, 54, title);
         inventory.setItem(0, ItemUtil.itemOf(Material.EMERALD, 1, (short) 0, "§aランク"));
         for (int i = 0; i < plugin.getGoldenClothConfig().getCategories().size(); i++) {
@@ -40,18 +43,24 @@ public class ShopScreen implements InventoryHolder {
     }
 
     protected boolean handle(@NotNull InventoryClickEvent e) {
+        if (!gift.isOnline()) {
+            if (!gift.getUniqueId().equals(e.getWhoClicked().getUniqueId())) {
+                e.getWhoClicked().sendMessage(ChatColor.RED + "対象のプレイヤーはオフラインです。");
+            }
+            return true;
+        }
         if (e.getSlot() == 0) {
-            //e.getWhoClicked().openInventory();
+            e.getWhoClicked().openInventory(new RankScreen(plugin, gift).getInventory());
             return true;
         }
         if (e.getSlot() <= 8) {
             List<CategoryConfig> categories = plugin.getGoldenClothConfig().getCategories();
-            if (categories.size() <= e.getSlot()) {
-                //e.getWhoClicked().openInventory();
+            if (categories.size() >= e.getSlot() - 1) {
+                e.getWhoClicked().openInventory(new CustomCategoryScreen(plugin, gift, categories.get(e.getSlot() - 1), e.getSlot() - 1).getInventory());
                 return true;
             }
         }
-        if (e.getWhoClicked().hasPermission("goldencloth.buy")) {
+        if (!e.getWhoClicked().hasPermission("goldencloth.buy")) {
             e.getWhoClicked().closeInventory();
             e.getWhoClicked().sendMessage(ChatColor.RED + "商品を購入する権限がありません！");
             return true;

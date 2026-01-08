@@ -6,6 +6,9 @@ import net.azisaba.azipluginmessaging.api.protocol.message.PlayerMessage;
 import net.azisaba.azipluginmessaging.api.protocol.message.ProxyboundGiveNitroSaraMessage;
 import net.azisaba.azipluginmessaging.api.protocol.message.ProxyboundGiveSaraMessage;
 import net.azisaba.goldencloth.GoldenClothPlugin;
+import net.azisaba.goldencloth.db.GoldenClothRepository;
+import net.azisaba.goldencloth.pricing.PriceCalculator;
+import net.azisaba.goldencloth.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -20,11 +23,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public final class RankScreen extends ShopScreen {
+    private static final double RANDOMNESS = 0.3;
     private static final Map<@Nullable String, List<String>> benefits = new HashMap<>();
     private static final Map<@NotNull Integer, SlotData> slots = new HashMap<>();
 
@@ -151,55 +156,55 @@ public final class RankScreen extends ShopScreen {
                 "§d※継続課金ではなく、30日が追加される形となります。"
         ));
 
-        slots.put(28, new SlotData(Material.DIAMOND, 100, "§1100円皿", "100yen", p -> {
+        slots.put(28, new SlotData(Material.DIAMOND, 100 * 4, "§1100円皿", "100yen", p -> {
             net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
             if (!Protocol.P_GIVE_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new ProxyboundGiveSaraMessage(100, player))) {
                 throw new RuntimeException("Failed to send packet");
             }
         }));
-        slots.put(29, new SlotData(Material.DIAMOND, 500, "§b500円皿", "500yen", p -> {
+        slots.put(29, new SlotData(Material.DIAMOND, 500 * 4, "§b500円皿", "500yen", p -> {
             net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
             if (!Protocol.P_GIVE_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new ProxyboundGiveSaraMessage(500, player))) {
                 throw new RuntimeException("Failed to send packet");
             }
         }));
-        slots.put(30, new SlotData(Material.DIAMOND, 1000, "§a1000円皿", "1000yen", p -> {
+        slots.put(30, new SlotData(Material.DIAMOND, 1000 * 4, "§a1000円皿", "1000yen", p -> {
             net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
             if (!Protocol.P_GIVE_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new ProxyboundGiveSaraMessage(1000, player))) {
                 throw new RuntimeException("Failed to send packet");
             }
         }));
-        slots.put(31, new SlotData(Material.DIAMOND, 2000, "§d2000円皿", "2000yen", p -> {
+        slots.put(31, new SlotData(Material.DIAMOND, 2000 * 4, "§d2000円皿", "2000yen", p -> {
             net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
             if (!Protocol.P_GIVE_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new ProxyboundGiveSaraMessage(2000, player))) {
                 throw new RuntimeException("Failed to send packet");
             }
         }));
-        slots.put(32, new SlotData(Material.DIAMOND, 5000, "§55000円皿", "5000yen", p -> {
+        slots.put(32, new SlotData(Material.DIAMOND, 5000 * 4, "§55000円皿", "5000yen", p -> {
             net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
             if (!Protocol.P_GIVE_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new ProxyboundGiveSaraMessage(5000, player))) {
                 throw new RuntimeException("Failed to send packet");
             }
         }));
-        slots.put(33, new SlotData(Material.DIAMOND, 10000, "§610000円皿", "10000yen", p -> {
+        slots.put(33, new SlotData(Material.DIAMOND, 10000 * 4, "§610000円皿", "10000yen", p -> {
             net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
             if (!Protocol.P_GIVE_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new ProxyboundGiveSaraMessage(10000, player))) {
                 throw new RuntimeException("Failed to send packet");
             }
         }));
-        slots.put(34, new SlotData(Material.DIAMOND, 50000, "§25§a0§20§a0§20§a円§2皿", "50000yen", p -> {
+        slots.put(34, new SlotData(Material.DIAMOND, 50000 * 4, "§25§a0§20§a0§20§a円§2皿", "50000yen", p -> {
             net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
             if (!Protocol.P_GIVE_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new ProxyboundGiveSaraMessage(50000, player))) {
                 throw new RuntimeException("Failed to send packet");
             }
         }));
-        slots.put(38, new SlotData(Material.DIAMOND, 3000, "§9§lゲ§2§lー§a§lミ§e§lン§4§lグ§eランク", "changegamingsara", p -> {
+        slots.put(38, new SlotData(Material.EMERALD, 3000 * 4, "§9§lゲ§2§lー§a§lミ§e§lン§4§lグ§eランク", "changegamingsara", p -> {
             net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
             if (!Protocol.P_GIVE_GAMING_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new PlayerMessage(player))) {
                 throw new RuntimeException("Failed to send packet");
             }
         }));
-        slots.put(42, new SlotData(Material.DIAMOND, 500, "§3Nitro§6§l⚡ §e(30日間)", null, p -> {
+        slots.put(42, new SlotData(Material.EMERALD, 500 * 4, "§3Nitro§6§l⚡ §e(30日間)", null, p -> {
             net.azisaba.azipluginmessaging.api.entity.Player player = AziPluginMessagingProvider.get().getPlayerAdapter(Player.class).get(p);
             if (!Protocol.P_GIVE_NITRO_SARA.sendPacket(AziPluginMessagingProvider.get().getServer().getPacketSender(), new ProxyboundGiveNitroSaraMessage(player, 30, TimeUnit.DAYS))) {
                 throw new RuntimeException("Failed to send packet");
@@ -207,20 +212,20 @@ public final class RankScreen extends ShopScreen {
         }));
     }
 
-    public RankScreen(@NotNull GoldenClothPlugin plugin, @NotNull Player player) {
-        super(plugin, ShopType.Rank, "ランク");
+    public RankScreen(@NotNull GoldenClothPlugin plugin, @NotNull Player gift) {
+        super(plugin, gift, ShopType.Rank, "ランク");
         slots.forEach((slot, data) -> {
             List<String> benefit = benefits.getOrDefault(data.groupName, Collections.emptyList());
-            int actualPrice = data.type == Material.DIAMOND ? data.price - getSaraPriceReduction(player) : data.price;
+            int actualPrice = data.getActualPrice(gift);
             String lorePrice;
-            if (data.groupName != null && player.hasPermission("group." + data.groupName)) {
+            if (actualPrice <= 0) {
+                lorePrice = "§c購入不可";
+            } else if (data.groupName != null && gift.hasPermission("group." + data.groupName)) {
                 lorePrice = "§c購入済み";
-            } else if (data.price == actualPrice) {
-                lorePrice = "§6価格: §a" + actualPrice + "円";
-            } else if (actualPrice <= 0) {
-                lorePrice = "§c購入済み";
+            } else if (data.price == actualPrice || RANDOMNESS > 0.0) {
+                lorePrice = "§6今日の価格: §a" + actualPrice + "布 §7(範囲: " + (data.price * (1 - RANDOMNESS)) + "布 ~ " + (data.price * (1 + RANDOMNESS)) + "布)";
             } else {
-                lorePrice = "§6価格: §8§m" + data.price + "円§a " + actualPrice + "円";
+                lorePrice = "§6今日の価格: §8§m" + data.price + "布§a " + actualPrice + "布 §7(範囲: " + (data.price * (1 - RANDOMNESS)) + "布 ~ " + (data.price * (1 + RANDOMNESS)) + "布)";
             }
             ItemStack stack = new ItemStack(data.type);
             ItemMeta meta = stack.getItemMeta();
@@ -261,43 +266,81 @@ public final class RankScreen extends ShopScreen {
             if (screen.handle(e)) return;
             SlotData data = slots.get(e.getSlot());
             if (data == null) return;
-            int actualPrice = data.getActualPrice((Player) e.getWhoClicked());
+            int actualPrice = data.getActualPrice(screen.gift);
             if (actualPrice > data.price) throw new IllegalArgumentException("actualPrice must be less than or equal to price (" + actualPrice + " > " + data.price + ")");
-            if (actualPrice <= 0 || (data.groupName != null && e.getWhoClicked().hasPermission("group." + data.groupName))) {
+            if (actualPrice <= 0 || (data.groupName != null && screen.gift.hasPermission("group." + data.groupName))) {
                 e.getWhoClicked().sendMessage(ChatColor.RED + "この商品はすでに購入済みです！");
                 return;
             }
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
-                    // TODO: fill the ???
-                    if (plugin.getDatabaseManager().getRepository().spend(/* ??? */)) {
-                        data.action.accept((Player) e.getWhoClicked());
-                    }
-                } catch (SQLException ex) {
-                    e.getWhoClicked().sendMessage(ChatColor.RED + "購入処理中にエラーが発生しました。");
-                    ex.printStackTrace();
-                }
-            });
+            e.getWhoClicked().closeInventory();
+            Player buyer = (Player) e.getWhoClicked();
+            buyer.openInventory(new ConfirmPurchaseScreen(
+                    buyer,
+                    screen.gift,
+                    data.name,
+                    actualPrice,
+                    () -> Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                        try {
+                            GoldenClothRepository repository = plugin.getDatabaseManager().getRepository();
+                            GoldenClothRepository.PlayerRecord record =
+                                    repository.findPlayerByUuid(screen.gift.getUniqueId());
+                            if (record == null) {
+                                plugin.runSync(() -> {
+                                    buyer.sendMessage(ChatColor.RED + "プレイヤー情報が見つかりません。");
+                                    return null;
+                                });
+                                return;
+                            }
+                            boolean spent = repository.spend(
+                                    record.getId(),
+                                    actualPrice,
+                                    "rank",
+                                    data.name
+                            );
+                            plugin.runSync(() -> {
+                                if (spent) {
+                                    data.action.accept(screen.gift);
+                                    Util.sendDiscordWebhookAsync(plugin, plugin.getConfig().getString("discordWebhookNotifyUrl"), null,
+                                            e.getWhoClicked().getName() + " (" + e.getWhoClicked().getUniqueId() + ")が" + screen.gift.getName() + " (" + screen.gift.getUniqueId() + ")に" + data.name + "を" + actualPrice + "布で購入しました");
+                                    buyer.sendMessage(ChatColor.GREEN + "購入しました！");
+                                    if (!screen.gift.getUniqueId().equals(e.getWhoClicked().getUniqueId())) {
+                                        Bukkit.broadcastMessage("§a§l" + e.getWhoClicked().getName() + "さんが" + screen.gift.getName() + "さんに§r§f" + data.name + "§a§lを購入しました！");
+                                    }
+                                } else {
+                                    buyer.sendMessage(ChatColor.RED + "残高が不足しています。");
+                                }
+                                return null;
+                            });
+                        } catch (SQLException ex) {
+                            plugin.runSync(() -> {
+                                buyer.sendMessage(ChatColor.RED + "購入処理中にエラーが発生しました。");
+                                return null;
+                            });
+                            ex.printStackTrace();
+                        }
+                    }),
+                    () -> buyer.openInventory(screen.getInventory())
+            ).getInventory());
         }
     }
 
     public static int getSaraPriceReduction(@NotNull Player player) {
         if (player.hasPermission("group.100000yen")) {
-            return 100000;
+            return 100000 * 4;
         } else if (player.hasPermission("group.50000yen")) {
-            return 50000;
+            return 50000 * 4;
         } else if (player.hasPermission("group.10000yen")) {
-            return 10000;
+            return 10000 * 4;
         } else if (player.hasPermission("group.5000yen")) {
-            return 5000;
+            return 5000 * 4;
         } else if (player.hasPermission("group.2000yen")) {
-            return 2000;
+            return 2000 * 4;
         } else if (player.hasPermission("group.1000yen")) {
-            return 1000;
+            return 1000 * 4;
         } else if (player.hasPermission("group.500yen")) {
-            return 500;
+            return 500 * 4;
         } else if (player.hasPermission("group.100yen")) {
-            return 100;
+            return 100 * 4;
         }
         return 0;
     }
@@ -318,11 +361,12 @@ public final class RankScreen extends ShopScreen {
         }
 
         public int getActualPrice(@NotNull Player player) {
+            int price = this.price;
             if (type == Material.DIAMOND) {
-                return price - getSaraPriceReduction(player);
-            } else {
-                return price;
+                price -= getSaraPriceReduction(player);
             }
+            price = PriceCalculator.calculateDailyPrice(price, RANDOMNESS, LocalDate.now(), name, type.name());
+            return price;
         }
     }
 }

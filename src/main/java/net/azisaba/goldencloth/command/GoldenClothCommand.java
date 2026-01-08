@@ -2,6 +2,7 @@ package net.azisaba.goldencloth.command;
 
 import net.azisaba.goldencloth.GoldenClothPlugin;
 import net.azisaba.goldencloth.db.GoldenClothRepository;
+import net.azisaba.goldencloth.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -45,7 +46,7 @@ public class GoldenClothCommand implements CommandExecutor {
         }
 
         Instant now = Instant.now();
-        Instant expiresAt = now.plus(30, ChronoUnit.DAYS);
+        Instant expiresAt = now.plus(90, ChronoUnit.DAYS);
         String finalNote = note;
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
@@ -59,6 +60,7 @@ public class GoldenClothCommand implements CommandExecutor {
                 }
                 long playerId = player.getId();
                 repository.addPurchase(playerId, amount, now, expiresAt, finalNote);
+                Util.sendDiscordWebhookAsync(plugin, plugin.getConfig().getString("discordWebhookNotifyUrl"), null, player.getName() + " (" + player.getUuid() + ")が" + amount + "布を購入しました");
                 Bukkit.getScheduler().runTask(plugin, () ->
                         sender.sendMessage("Added purchase of " + amount + " for " + player.getName() + ".")
                 );

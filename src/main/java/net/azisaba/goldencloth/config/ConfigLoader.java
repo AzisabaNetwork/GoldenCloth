@@ -23,7 +23,8 @@ public final class ConfigLoader {
             List<ProductConfig> products = new ArrayList<>();
 
             for (Map<?, ?> productMap : asMapList(categoryMap.get("products"))) {
-                int basePrice = asInt(productMap.get("basePrice"), 0);
+                int dummyPrice = asInt(productMap.get("dummyPrice"), -1);
+                int basePrice = asInt(productMap.get("basePrice"), asInt(productMap.get("price"), 0));
                 String productMaterial = asString(productMap.get("material"), "");
                 String productName = asString(productMap.get("name"), "");
                 List<String> lore = asStringList(productMap.get("lore"));
@@ -37,6 +38,7 @@ public final class ConfigLoader {
                 }
 
                 products.add(new ProductConfig(
+                        dummyPrice,
                         basePrice,
                         productMaterial,
                         productName,
@@ -110,7 +112,7 @@ public final class ConfigLoader {
         }
     }
 
-    private static int asInteger(Object value, Integer defaultValue) {
+    private static Integer asInteger(Object value, Integer defaultValue) {
         if (value instanceof Number) {
             return ((Number) value).intValue();
         }
