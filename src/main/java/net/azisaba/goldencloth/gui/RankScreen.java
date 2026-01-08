@@ -146,7 +146,7 @@ public final class RankScreen extends ShopScreen {
                 " §f §b/setprefix (新しいprefix)§eで設定、§b/clearprefix§eで削除 (globalよりもこちらが優先)",
                 " §f §b/setglobalprefix (新しいprefix)§eで設定、§b/clearglobalprefix§eで削除",
                 "§f- §eギルドチャットの公開設定",
-                " §f §b/guild_test open§eで§b/guild_test join (ギルド名)§eで招待無しで参加可能になる",
+                " §f §b/guild open§eで§b/guild join (ギルド名)§eで招待無しで参加可能になる",
                 "§f- §bbeta.azisaba.net§eの接続権",
                 " §f §e今後ベータ版のサーバーが先行公開する際に参加可能になります。",
                 "",
