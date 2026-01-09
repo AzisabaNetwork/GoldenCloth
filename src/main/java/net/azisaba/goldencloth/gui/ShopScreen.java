@@ -50,7 +50,7 @@ public class ShopScreen implements InventoryHolder {
             return true;
         }
         if (e.getSlot() == 0) {
-            e.getWhoClicked().openInventory(new RankScreen(plugin, gift).getInventory());
+            e.getWhoClicked().openInventory(new RankScreen(plugin, gift, (Player) e.getWhoClicked()).getInventory());
             return true;
         }
         if (e.getSlot() <= 8) {

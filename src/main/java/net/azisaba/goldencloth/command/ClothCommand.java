@@ -24,14 +24,14 @@ public class ClothCommand implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (args.length == 1 && args[0].equals("yes")) {
-            ((Player) sender).openInventory(new RankScreen(plugin, (Player) sender).getInventory());
+            ((Player) sender).openInventory(new RankScreen(plugin, (Player) sender, (Player) sender).getInventory());
         } else if (args.length == 1) {
             Player player = Bukkit.getPlayerExact(args[0]);
             if (player == null) {
                 sender.sendMessage(ChatColor.RED + "プレイヤーが見つかりません: " + args[0]);
                 return true;
             }
-            player.openInventory(new RankScreen(plugin, player).getInventory());
+            ((Player) sender).openInventory(new RankScreen(plugin, player, (Player) sender).getInventory());
         } else {
             sender.sendMessage("§b§nhttps://link.azisaba.net/sct");
             sender.sendMessage("§e続行する前に上記のURLを確認してください。");

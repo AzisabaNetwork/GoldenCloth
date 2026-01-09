@@ -96,7 +96,7 @@ public class CustomCategoryScreen extends ShopScreen {
                         try {
                             GoldenClothRepository repository = screen.plugin.getDatabaseManager().getRepository();
                             GoldenClothRepository.PlayerRecord record =
-                                    repository.findPlayerByUuid(screen.gift.getUniqueId());
+                                    repository.findPlayerByUuid(buyer.getUniqueId());
                             if (record == null) {
                                 screen.plugin.runSync(() -> {
                                     buyer.sendMessage(ChatColor.RED + "プレイヤー情報が見つかりません。");

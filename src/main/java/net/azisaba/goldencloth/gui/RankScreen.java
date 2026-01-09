@@ -42,23 +42,13 @@ public final class RankScreen extends ShopScreen {
                 "§7アジ鯖に100円寄付したものに送られる称号。",
                 "",
                 "§6§n全鯖共通",
-                "§f- §e名前の最初に§8[§1100円皿§8]§eがつき、名前も同じ色になる",
-                "",
-                "§6§nLGW",
-                "§f- §1100円HANABI§eがもらえる",
-                "§f- §d寄付ガチャチケット§eが1枚もらえる",
-                "§f- §b/h§eコマンドで100円皿専用のパーティクルがアクセス可能になる"
+                "§f- §e名前の最初に§8[§1100円皿§8]§eがつき、名前も同じ色になる"
         ));
         benefits.put("500yen", Arrays.asList(
                 "§7アジ鯖に500円寄付したものに送られる称号。",
                 "",
                 "§6§n全鯖共通",
-                "§f- §e名前の最初に§8[§b500円皿§8]§eがつき、名前も同じ色になる",
-                "",
-                "§6§nLGW",
-                "§f- §b500円HANABI§eがもらえる",
-                "§f- §d寄付ガチャチケット§eが3枚もらえる",
-                "§f- §b/h§eコマンドで500円皿専用のパーティクルがアクセス可能になる"
+                "§f- §e名前の最初に§8[§b500円皿§8]§eがつき、名前も同じ色になる"
         ));
         benefits.put("1000yen", Arrays.asList(
                 "§7アジ鯖に1000円寄付したものに送られる称号。",
@@ -67,9 +57,6 @@ public final class RankScreen extends ShopScreen {
                 "§f- §e名前の最初に§8[§a1000円皿§8]§eがつき、名前も同じ色になる",
                 "",
                 "§6§nLGW",
-                "§f- §a1000円HANABI§eがもらえる",
-                "§f- §d寄付ガチャチケット§eが5枚もらえる",
-                "§f- §b/h§eコマンドで1000円皿専用のパーティクルがアクセス可能になる",
                 "§f- §b/hat§eコマンドが使用可能になる(アイテムを頭にかぶることができる)"
         ));
         benefits.put("2000yen", Arrays.asList(
@@ -79,9 +66,6 @@ public final class RankScreen extends ShopScreen {
                 "§f- §e名前の最初に§8[§d2000円皿§8]§eがつき、名前も同じ色になる",
                 "",
                 "§6§nLGW",
-                "§f- §d2000円HANABI§eがもらえる",
-                "§f- §d寄付ガチャチケット§eが10枚もらえる",
-                "§f- §b/h§eコマンドで2000円皿専用のパーティクルがアクセス可能になる",
                 "§f- §b/hat§eコマンドが使用可能になる(アイテムを頭にかぶることができる)"
         ));
         benefits.put("5000yen", Arrays.asList(
@@ -92,11 +76,7 @@ public final class RankScreen extends ShopScreen {
                 "§f- §eチャットでカラーコードと装飾コードが使えるようになる",
                 "",
                 "§6§nLGW",
-                "§f- §55000円HANABI§eがもらえる",
-                "§f- §d寄付ガチャチケット§eが20枚もらえる",
-                "§f- §b/h§eコマンドで5000円皿専用のパーティクルがアクセス可能になる",
-                "§f- §b/hat§eコマンドが使用可能になる(アイテムを頭にかぶることができる)",
-                "§f- §6DOROKUN§eがもらえる"
+                "§f- §b/hat§eコマンドが使用可能になる(アイテムを頭にかぶることができる)"
         ));
         benefits.put("10000yen", Arrays.asList(
                 "§7アジ鯖に10000円寄付したものに送られる称号。",
@@ -106,11 +86,7 @@ public final class RankScreen extends ShopScreen {
                 "§f- §eチャットでカラーコードと装飾コードが使えるようになる",
                 "",
                 "§6§nLGW",
-                "§f- §610000円HANABI§eがもらえる",
-                "§f- §d寄付ガチャチケット§eが32枚もらえる",
-                "§f- §b/h§eコマンドで5000円皿専用のパーティクルがアクセス可能になる",
-                "§f- §b/hat§eコマンドが使用可能になる(アイテムを頭にかぶることができる)",
-                "§f- §6カボチャ爆弾§eがもらえる"
+                "§f- §b/hat§eコマンドが使用可能になる(アイテムを頭にかぶることができる)"
         ));
         benefits.put("50000yen", Arrays.asList(
                 "§7アジ鯖に50000円寄付したものに送られる称号。",
@@ -120,8 +96,6 @@ public final class RankScreen extends ShopScreen {
                 "§f- §eチャットでカラーコードと装飾コードが使えるようになる",
                 "",
                 "§6§nLGW",
-                "§f- §d寄付ガチャチケット§eが128枚もらえる",
-                "§f- §b/h§eコマンドで50000円皿専用のパーティクルがアクセス可能になる",
                 "§f- §b/hat§eコマンドが使用可能になる(アイテムを頭にかぶることができる)"
         ));
         benefits.put("changegamingsara", Arrays.asList(
@@ -156,6 +130,9 @@ public final class RankScreen extends ShopScreen {
                 "",
                 "§6§nLife",
                 "§f- §eニックネームでカラーコードと日本語が使用可能になる",
+                "",
+                "§6§nCreativePro",
+                "§f- §e1日1回のログイン時のポイントが2倍に増加",
                 "",
                 "§d※継続課金ではなく、30日が追加される形となります。"
         ));
@@ -216,7 +193,7 @@ public final class RankScreen extends ShopScreen {
         }));
     }
 
-    public RankScreen(@NotNull GoldenClothPlugin plugin, @NotNull Player gift) {
+    public RankScreen(@NotNull GoldenClothPlugin plugin, @NotNull Player gift, @NotNull Player player) {
         super(plugin, gift, ShopType.Rank, "ランク");
         slots.forEach((slot, data) -> {
             List<String> benefit = benefits.getOrDefault(data.groupName, Collections.emptyList());
@@ -251,7 +228,7 @@ public final class RankScreen extends ShopScreen {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 GoldenClothRepository repository = plugin.getDatabaseManager().getRepository();
-                GoldenClothRepository.PlayerRecord record = repository.findPlayerByUuid(gift.getUniqueId());
+                GoldenClothRepository.PlayerRecord record = repository.findPlayerByUuid(player.getUniqueId());
                 if (record == null) {
                     updateBalanceLore(Collections.singletonList("§cプレイヤー情報が見つかりません。"));
                     return;
@@ -340,7 +317,7 @@ public final class RankScreen extends ShopScreen {
                         try {
                             GoldenClothRepository repository = plugin.getDatabaseManager().getRepository();
                             GoldenClothRepository.PlayerRecord record =
-                                    repository.findPlayerByUuid(screen.gift.getUniqueId());
+                                    repository.findPlayerByUuid(buyer.getUniqueId());
                             if (record == null) {
                                 plugin.runSync(() -> {
                                     buyer.sendMessage(ChatColor.RED + "プレイヤー情報が見つかりません。");
